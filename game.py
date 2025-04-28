@@ -45,11 +45,12 @@ class Game:
     def draw(self, surface):
         surface.fill(WHITE)
         # Рисуем сетку
-        for column in self.grid:
-            for tile in column:
+        for x in range(GRID_SIZE):
+            for y in range(GRID_SIZE):
+                tile = self.grid[x][y]
                 if tile is not None:
                     tile.draw(surface)
-        # Рисуем выделенный тайл))))))
+        # Рисуем выделенный тайл
         if self.selected_tile:
             x, y = self.selected_tile
             rect = pygame.Rect(
@@ -58,13 +59,19 @@ class Game:
                 TILE_SIZE, TILE_SIZE
             )
             pygame.draw.rect(surface, WHITE, rect, 3)
-        pygame.draw.rect(surface, RED, (0, MONSTER_PATH_Y - 20, SCREEN_WIDTH, 60))
-        pygame.draw.rect(surface, BLACK, (0, MONSTER_PATH_Y - 20, SCREEN_WIDTH, 60), 2)
+        pygame.draw.rect(
+            surface, RED, (0, MONSTER_PATH_Y - 20, SCREEN_WIDTH, 60))
+        pygame.draw.rect(
+            surface, BLACK, (0, MONSTER_PATH_Y - 20, SCREEN_WIDTH, 60), 2)
 
-        pygame.draw.rect(surface, (150, 150, 150), (0, MONSTER_PATH_Y - 15, SCREEN_WIDTH, 50))
-        pygame.draw.lines(surface, YELLOW, False, [(0, MONSTER_PATH_Y + 10), (SCREEN_WIDTH, MONSTER_PATH_Y + 10)], 3)
-        shadow_surface = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
-        pygame.draw.rect(shadow_surface, SHADOW_COLOR, (0, 0, TILE_SIZE, TILE_SIZE), border_radius=5)
+        pygame.draw.rect(surface, (150, 150, 150),
+                         (0, MONSTER_PATH_Y - 15, SCREEN_WIDTH, 50))
+        pygame.draw.lines(surface, YELLOW, False, [
+                          (0, MONSTER_PATH_Y + 10), (SCREEN_WIDTH, MONSTER_PATH_Y + 10)], 3)
+        shadow_surface = pygame.Surface(
+            (TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+        pygame.draw.rect(shadow_surface, SHADOW_COLOR,
+                         (0, 0, TILE_SIZE, TILE_SIZE), border_radius=5)
         for x in range(GRID_SIZE):
             for y in range(GRID_SIZE):
                 if self.grid[x][y] is not None:
@@ -96,13 +103,38 @@ class Game:
 
         pygame.draw.rect(surface, BUTTON_COLOR, self.menu_button)
         menu_text = self.font.render("Меню", True, TEXT_COLOR)
-        surface.blit(menu_text, (self.menu_button.x + 20, self.menu_button.y + 10))
+        surface.blit(menu_text, (self.menu_button.x +
+                     20, self.menu_button.y + 10))
 
         if self.win:  # Добавляем сообщение о победе
-            win_text = self.font.render(f"ПОБЕДА! Набрано {self.score} очков!", True, GREEN)
-            restart_text = self.font.render("Нажмите R для рестарта", True, BLACK)
-            surface.blit(win_text, (SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 - 30))
-            surface.blit(restart_text, (SCREEN_WIDTH // 2 - 120, SCREEN_HEIGHT // 2 + 20))
+            win_text = self.font.render(
+                f"ПОБЕДА! Набрано {self.score} очков!", True, GREEN)
+            restart_text = self.font.render(
+                "Нажмите R для рестарта", True, BLACK)
+            surface.blit(win_text, (SCREEN_WIDTH // 2 -
+                         150, SCREEN_HEIGHT // 2 - 30))
+            surface.blit(restart_text, (SCREEN_WIDTH //
+                         2 - 120, SCREEN_HEIGHT // 2 + 20))
+
+        for x in range(GRID_SIZE):
+            for y in range(GRID_SIZE):
+                tile = self.grid[x][y]
+                if tile is not None and hasattr(tile, 'special_effect'):
+                    if tile.special_effect == 'row_clear':
+                        pygame.draw.line(surface, (255, 255, 0, 150), 
+                                   (GRID_OFFSET_X, GRID_OFFSET_Y + y * TILE_SIZE + TILE_SIZE//2),
+                                   (GRID_OFFSET_X + GRID_SIZE * TILE_SIZE, GRID_OFFSET_Y + y * TILE_SIZE + TILE_SIZE//2), 
+                                   3)
+                    elif tile.special_effect == 'column_clear':
+                        pygame.draw.line(surface, (255, 255, 0, 150), 
+                                   (GRID_OFFSET_X + x * TILE_SIZE + TILE_SIZE//2, GRID_OFFSET_Y),
+                                   (GRID_OFFSET_X + x * TILE_SIZE + TILE_SIZE//2, GRID_OFFSET_Y + GRID_SIZE * TILE_SIZE), 
+                                   3)
+                    elif tile.special_effect == 'color_clear':
+                        pygame.draw.circle(surface, (255, 255, 0, 150),
+                                      (GRID_OFFSET_X + x * TILE_SIZE + TILE_SIZE//2, 
+                                       GRID_OFFSET_Y + y * TILE_SIZE + TILE_SIZE//2),
+                                      TILE_SIZE//2, 2)
 
     def handle_click(self, pos):
         if self.menu_button.collidepoint(pos):
@@ -178,8 +210,8 @@ class Game:
 
                 # Проверяем следующие тайлы
                 while (x + match_length < GRID_SIZE and
-                   self.grid[x + match_length][y] is not None and
-                   self.grid[x + match_length][y].color == color):
+                       self.grid[x + match_length][y] is not None and
+                       self.grid[x + match_length][y].color == color):
                     match_length += 1
 
                 if match_length >= 3:
@@ -202,8 +234,8 @@ class Game:
 
                 # Проверяем следующие тайлы
                 while (y + match_length < GRID_SIZE and
-                   self.grid[x][y + match_length] is not None and
-                   self.grid[x][y + match_length].color == color):
+                       self.grid[x][y + match_length] is not None and
+                       self.grid[x][y + match_length].color == color):
                     match_length += 1
 
                 if match_length >= 3:
@@ -217,54 +249,56 @@ class Game:
     def remove_matches(self):
         matches = self.find_matches()
         damage = 0
-        special_effects = []
+        positions_to_clear = set()
 
         for match in matches:
-            # Проверяем, нужно ли применить спецэффекты
-            if len(match) >= 5:
-                # Удаляем все тайлы этого цвета
-                color = self.grid[match[0][0]][match[0][1]].color
-                special_effects.append(('color', color))
-                damage += GRID_SIZE * GRID_SIZE  # Большой урон за спецэффект
-            elif len(match) >= 4:
-                # Удаляем строку или столбец
-                if match[0][0] == match[1][0]:  # Вертикальный (столбец)
-                    special_effects.append(('column', match[0][0]))
-                else:  # Горизонтальный (строка)
-                    special_effects.append(('row', match[0][1]))
-                damage += GRID_SIZE  # Средний урон за спецэффект
+            match_length = len(match)
+            first_x, first_y = match[0]
+            color = self.grid[first_x][first_y].color
 
-            # Увеличиваем урон за каждый тайл
-            damage += len(match)
-
-        # Применяем спецэффекты
-        for effect in special_effects:
-            if effect[0] == 'color':
-                color = effect[1]
+            # Определяем направление совпадения (горизонтальное или вертикальное)
+            is_horizontal = all(m[1] == first_y for m in match)
+        
+            # Обработка спецэффектов
+            if match_length == 4:
+                # 4 в ряд - уничтожаем всю строку или столбец
+                if is_horizontal:
+                    # Горизонтальное - уничтожаем строку
+                    for x in range(GRID_SIZE):
+                        positions_to_clear.add((x, first_y))
+                else:
+                    # Вертикальное - уничтожаем столбец
+                    for y in range(GRID_SIZE):
+                        positions_to_clear.add((first_x, y))
+                damage += GRID_SIZE * 2  # Больший урон за спецэффект
+        
+            elif match_length >= 5:
+                # 5+ в ряд - уничтожаем все тайлы этого цвета
                 for x in range(GRID_SIZE):
                     for y in range(GRID_SIZE):
-                        if self.grid[x][y].color == color:
-                            self.grid[x][y] = None
-            elif effect[0] == 'column':
-                x = effect[1]
-                for y in range(GRID_SIZE):
-                    self.grid[x][y] = None
-            elif effect[0] == 'row':
-                y = effect[1]
-                for x in range(GRID_SIZE):
-                    self.grid[x][y] = None
+                        if self.grid[x][y] is not None and self.grid[x][y].color == color:
+                            positions_to_clear.add((x, y))
+                damage += GRID_SIZE * GRID_SIZE  # Очень большой урон
+        
+            else:
+                # Обычное совпадение 3 в ряд
+                for pos in match:
+                    positions_to_clear.add(pos)
+                damage += len(match)
 
-        # Удаляем совпадения
-        for match in matches:
-            for x, y in match:
-                # Если еще не удален спецэффектом
-                if self.grid[x][y] is not None:
-                    self.grid[x][y] = None
+        # Удаляем тайлы в отмеченных позициях
+        for x, y in positions_to_clear:
+            if self.grid[x][y] is not None:
+                self.grid[x][y] = None
 
         # Наносим урон монстрам
         self.apply_damage(damage)
 
-        return len(matches) > 0
+        # Заполняем пустые места с анимацией
+        if positions_to_clear:
+            self.fill_empty_spaces()
+
+        return len(positions_to_clear) > 0
 
     def apply_damage(self, damage):
         if not self.monsters:
@@ -287,30 +321,37 @@ class Game:
                 self.level += 1
 
     def fill_empty_spaces(self):
+        # Сначала перемещаем существующие тайлы вниз
         for x in range(GRID_SIZE):
             empty_spots = []
             for y in range(GRID_SIZE - 1, -1, -1):
                 if self.grid[x][y] is None:
                     empty_spots.append(y)
-                elif empty_spots and isinstance(self.grid[x][y], Tile):
-                    # Перемещаем тайл вниз
+                elif empty_spots:
+                    # Находим самую нижнюю пустую позицию
                     lowest_empty = empty_spots.pop(0)
+
+                    # Перемещаем тайл вниз
                     self.grid[x][lowest_empty] = self.grid[x][y]
                     self.grid[x][y] = None
 
                     # Настраиваем анимацию падения
-                    self.grid[x][lowest_empty].is_falling = True
-                    self.grid[x][lowest_empty].fall_speed = 15
                     self.grid[x][lowest_empty].update_position(x, lowest_empty)
+                    self.grid[x][lowest_empty].is_falling = True
+                    self.grid[x][lowest_empty].fall_speed = 5
+                    self.grid[x][lowest_empty].pixel_y = GRID_OFFSET_Y + \
+                        y * TILE_SIZE
 
-            # Создаем новые тайлы сверху
+                    # Добавляем оставшиеся пустые позиции обратно в список
+                    empty_spots.append(y)
+
+            # Создаем новые тайлы для оставшихся пустых мест
             for empty_y in empty_spots:
                 color = random.choice(COLORS)
                 new_tile = Tile(x, empty_y, color)
-                new_tile.pixel_y = -TILE_SIZE  # Начинаем падение сверху
+                new_tile.pixel_y = GRID_OFFSET_Y - TILE_SIZE  # Начинаем выше экрана
                 new_tile.is_falling = True
-                new_tile.fall_speed = 15
-                new_tile.update_position(x, empty_y)
+                new_tile.fall_speed = 5
                 self.grid[x][empty_y] = new_tile
 
     def spawn_monster(self):
@@ -327,8 +368,12 @@ class Game:
         for x in range(GRID_SIZE):
             for y in range(GRID_SIZE):
                 tile = self.grid[x][y]
-                if tile is not None and hasattr(tile, 'update'):
+                if tile is not None:
                     tile.update()
+                    if hasattr(tile, 'effect_timer'):
+                        tile.effect_timer += 1
+                        if tile.effect_timer > 30:  # Эффект длится 30 кадров
+                            tile.special_effect = None
         current_time = pygame.time.get_ticks()
         delta_time = current_time - self.last_time
         self.last_time = current_time

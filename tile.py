@@ -4,24 +4,28 @@ from constants import TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, BLACK
 
 class Tile:
     def __init__(self, grid_x, grid_y, color):
-        # Координаты в сетке (целые числа)
         self.grid_x = grid_x
         self.grid_y = grid_y
-
-        # Координаты для отрисовки (вычисляемые)
+        self.color = color
         self.pixel_x = GRID_OFFSET_X + grid_x * TILE_SIZE
         self.pixel_y = GRID_OFFSET_Y + grid_y * TILE_SIZE
-
-        self.color = color
         self.rect = pygame.Rect(self.pixel_x, self.pixel_y, TILE_SIZE, TILE_SIZE)
         self.is_falling = False
         self.fall_speed = 0
+        self.special_effect = None  # 'row_clear', 'column_clear', 'color_clear'
+        self.effect_timer = 0
 
     def update(self):
         """Обновляет позицию для анимации падения"""
         if self.is_falling:
-            self.pixel_y += self.fall_speed
-            self.rect.y = self.pixel_y
+            target_y = GRID_OFFSET_Y + self.grid_y * TILE_SIZE
+            if self.pixel_y < target_y:
+                self.pixel_y = min(target_y, self.pixel_y + self.fall_speed)
+                self.rect.y = self.pixel_y
+            else:
+                self.is_falling = False
+                self.pixel_y = target_y
+                self.rect.y = self.pixel_y
 
     def update_position(self, new_grid_x, new_grid_y):
         """Обновляет координаты в сетке и пересчитывает пиксельные коор-ты"""
