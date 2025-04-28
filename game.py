@@ -49,7 +49,7 @@ class Game:
             for tile in column:
                 if tile is not None:
                     tile.draw(surface)
-        # Рисуем выделенный тайл
+        # Рисуем выделенный тайл))))))
         if self.selected_tile:
             x, y = self.selected_tile
             rect = pygame.Rect(
