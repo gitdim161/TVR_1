@@ -16,36 +16,41 @@ def main():
 
     running = True
     while running:
-        events = pygame.event.get()
-
-        for event in events:
-            if event.type == pygame.QUIT:
-                running = False
-
-            action = menu.handle_event(event)
-            if action == "start":
-                game = Game(menu.selected_difficulty)
-            elif action == "exit":
-                running = False
-
-        # Отрисовка
-        if game:
-            game.update()
-            screen.fill(WHITE)
-            game.draw(screen)
+        try:
+            events = pygame.event.get()
 
             for event in events:
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if game.handle_click(event.pos) == "menu":
-                        game = None
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r and game.game_over or game.win:
-                        game = Game(menu.selected_difficulty)
-        else:
-            menu.draw()
+                if event.type == pygame.QUIT:
+                    running = False
 
-        pygame.display.flip()
-        clock.tick(FPS)
+                action = menu.handle_event(event)
+                if action == "start":
+                    game = Game(menu.selected_difficulty)
+                elif action == "exit":
+                    running = False
+
+            # Отрисовка
+            if game:
+                game.update()
+                screen.fill(WHITE)
+                game.draw(screen)
+
+                for event in events:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if game.handle_click(event.pos) == "menu":
+                            game = None
+                    elif event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_r and game.game_over or game.win:
+                            game = Game(menu.selected_difficulty)
+            else:
+                menu.draw()
+
+            pygame.display.flip()
+            clock.tick(FPS)
+
+        except Exception as e:
+            print(f"Произошла ошибка: {e}")
+            running = False
 
     pygame.quit()
     sys.exit()

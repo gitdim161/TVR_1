@@ -9,6 +9,7 @@ from constants import GRID_SIZE, SPAWN_INTERVAL, COLORS, TILE_SIZE, GRID_OFFSET_
 class Game:
     def __init__(self, difficulty="любитель"):
         settings = DIFFICULTY_SETTINGS[difficulty]
+        self.difficulty = difficulty
         self.grid = []
         self.selected_tile = None
         self.score = 0
@@ -121,26 +122,30 @@ class Game:
                 tile = self.grid[x][y]
                 if tile is not None and hasattr(tile, 'special_effect'):
                     if tile.special_effect == 'row_clear':
-                        pygame.draw.line(surface, (255, 255, 0, 150), 
-                                   (GRID_OFFSET_X, GRID_OFFSET_Y + y * TILE_SIZE + TILE_SIZE//2),
-                                   (GRID_OFFSET_X + GRID_SIZE * TILE_SIZE, GRID_OFFSET_Y + y * TILE_SIZE + TILE_SIZE//2), 
-                                   3)
+                        pygame.draw.line(surface, (255, 255, 0, 150),
+                                         (GRID_OFFSET_X, GRID_OFFSET_Y +
+                                          y * TILE_SIZE + TILE_SIZE//2),
+                                         (GRID_OFFSET_X + GRID_SIZE * TILE_SIZE,
+                                          GRID_OFFSET_Y + y * TILE_SIZE + TILE_SIZE//2),
+                                         3)
                     elif tile.special_effect == 'column_clear':
-                        pygame.draw.line(surface, (255, 255, 0, 150), 
-                                   (GRID_OFFSET_X + x * TILE_SIZE + TILE_SIZE//2, GRID_OFFSET_Y),
-                                   (GRID_OFFSET_X + x * TILE_SIZE + TILE_SIZE//2, GRID_OFFSET_Y + GRID_SIZE * TILE_SIZE), 
-                                   3)
+                        pygame.draw.line(surface, (255, 255, 0, 150),
+                                         (GRID_OFFSET_X + x * TILE_SIZE +
+                                          TILE_SIZE//2, GRID_OFFSET_Y),
+                                         (GRID_OFFSET_X + x * TILE_SIZE + TILE_SIZE //
+                                          2, GRID_OFFSET_Y + GRID_SIZE * TILE_SIZE),
+                                         3)
                     elif tile.special_effect == 'color_clear':
                         pygame.draw.circle(surface, (255, 255, 0, 150),
-                                      (GRID_OFFSET_X + x * TILE_SIZE + TILE_SIZE//2, 
-                                       GRID_OFFSET_Y + y * TILE_SIZE + TILE_SIZE//2),
-                                      TILE_SIZE//2, 2)
+                                           (GRID_OFFSET_X + x * TILE_SIZE + TILE_SIZE//2,
+                                           GRID_OFFSET_Y + y * TILE_SIZE + TILE_SIZE//2),
+                                           TILE_SIZE//2, 2)
 
     def handle_click(self, pos):
         if self.menu_button.collidepoint(pos):
             return "menu"
         if self.game_over or self.win:
-            return
+            return None
 
         # Проверяем условие победы
         if self.score >= WIN_SCORE:
@@ -149,33 +154,34 @@ class Game:
         x = (pos[0] - GRID_OFFSET_X) // TILE_SIZE
         y = (pos[1] - GRID_OFFSET_Y) // TILE_SIZE
 
-        if 0 <= x < GRID_SIZE and 0 <= y < GRID_SIZE:
-            if self.grid[x][y] is None:  # Проверка на пустую ячейку
-                return
-            if self.selected_tile is None:
-                self.selected_tile = (x, y)
-            else:
-                # Проверяем, соседние ли тайлы
-                prev_x, prev_y = self.selected_tile
-                if (abs(x - prev_x) == 1 and y == prev_y) or (abs(y - prev_y) == 1 and x == prev_x):
-                    # Меняем тайлы местами
-                    self.swap_tiles((prev_x, prev_y), (x, y))
+        if not (0 <= x < GRID_SIZE and 0 <= y < GRID_SIZE):
+            return None
+        if self.grid[x][y] is None:  # Проверка на пустую ячейку
+            return None
+        if self.selected_tile is None:
+            self.selected_tile = (x, y)
+        else:
+            # Проверяем, соседние ли тайлы
+            prev_x, prev_y = self.selected_tile
+            if (abs(x - prev_x) == 1 and y == prev_y) or (abs(y - prev_y) == 1 and x == prev_x):
+                # Меняем тайлы местами
+                self.swap_tiles((prev_x, prev_y), (x, y))
 
-                    # Проверяем, есть ли совпадения
-                    if not self.find_matches():
-                        # Если нет, меняем обратно
-                        self.swap_tiles((x, y), (prev_x, prev_y))
-                    else:
-                        # Если есть, удаляем совпадения и обновляем поле
+                # Проверяем, есть ли совпадения
+                if not self.find_matches():
+                    # Если нет, меняем обратно
+                    self.swap_tiles((x, y), (prev_x, prev_y))
+                else:
+                    # Если есть, удаляем совпадения и обновляем поле
+                    self.remove_matches()
+                    self.fill_empty_spaces()
+
+                    # Продолжаем проверять совпадения после заполнения
+                    while self.find_matches():
                         self.remove_matches()
                         self.fill_empty_spaces()
 
-                        # Продолжаем проверять совпадения после заполнения
-                        while self.find_matches():
-                            self.remove_matches()
-                            self.fill_empty_spaces()
-
-                self.selected_tile = None
+            self.selected_tile = None
 
     def swap_tiles(self, pos1, pos2):
         x1, y1 = pos1
@@ -184,15 +190,17 @@ class Game:
         # Проверка на существование тайлов
         if not (0 <= x1 < GRID_SIZE and 0 <= y1 < GRID_SIZE and
                 0 <= x2 < GRID_SIZE and 0 <= y2 < GRID_SIZE):
-            return
+            return False
 
         if self.grid[x1][y1] is None or self.grid[x2][y2] is None:
-            return
+            return False
+
         # Меняем тайлы местами в сетке
         self.grid[x1][y1], self.grid[x2][y2] = self.grid[x2][y2], self.grid[x1][y1]
         # Обновляем позиции тайлов
         self.grid[x1][y1].update_position(x1, y1)
         self.grid[x2][y2].update_position(x2, y2)
+        return True
 
     def find_matches(self):
         matches = []
@@ -258,7 +266,7 @@ class Game:
 
             # Определяем направление совпадения (горизонтальное или вертикальное)
             is_horizontal = all(m[1] == first_y for m in match)
-        
+
             # Обработка спецэффектов
             if match_length == 4:
                 # 4 в ряд - уничтожаем всю строку или столбец
@@ -271,7 +279,7 @@ class Game:
                     for y in range(GRID_SIZE):
                         positions_to_clear.add((first_x, y))
                 damage += GRID_SIZE * 2  # Больший урон за спецэффект
-        
+
             elif match_length >= 5:
                 # 5+ в ряд - уничтожаем все тайлы этого цвета
                 for x in range(GRID_SIZE):
@@ -279,7 +287,7 @@ class Game:
                         if self.grid[x][y] is not None and self.grid[x][y].color == color:
                             positions_to_clear.add((x, y))
                 damage += GRID_SIZE * GRID_SIZE  # Очень большой урон
-        
+
             else:
                 # Обычное совпадение 3 в ряд
                 for pos in match:
@@ -316,10 +324,6 @@ class Game:
         if self.monsters[0].hp <= 0:
             self.monsters.pop(0)
 
-            # Если больше нет монстров, повышаем уровень
-            if not self.monsters:
-                self.level += 1
-
     def fill_empty_spaces(self):
         # Сначала перемещаем существующие тайлы вниз
         for x in range(GRID_SIZE):
@@ -355,9 +359,9 @@ class Game:
                 self.grid[x][empty_y] = new_tile
 
     def spawn_monster(self):
-        hp = self.monster_settings["hp"] + self.level * 5
-        damage = self.monster_settings["damage"] + self.level * 1
-        speed = self.monster_settings["speed"] + self.level * 0.05
+        hp = self.monster_settings["hp"]
+        damage = self.monster_settings["damage"]
+        speed = self.monster_settings["speed"]
         self.monsters.append(Monster(hp, damage, speed))
 
     def update(self):
@@ -372,7 +376,7 @@ class Game:
                     tile.update()
                     if hasattr(tile, 'effect_timer'):
                         tile.effect_timer += 1
-                        if tile.effect_timer > 30:  # Эффект длится 30 кадров
+                        if tile.effect_timer > 90:  # Эффект длится 90 кадров
                             tile.special_effect = None
         current_time = pygame.time.get_ticks()
         delta_time = current_time - self.last_time
@@ -387,7 +391,10 @@ class Game:
             self.spawn_interval = max(1000, SPAWN_INTERVAL - self.level * 200)
 
         # Обновляем монстров
-        for monster in self.monsters:
+        for monster in self.monsters[:]:
+            if monster is None:
+                self.monsters.remove(monster)
+                continue
             monster.update()
 
             # Проверяем, дошел ли монстр до крепости
