@@ -1,6 +1,6 @@
 # Настройки экрана
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1535
+SCREEN_HEIGHT = 800
 FPS = 60
 
 # Настройки сетки
@@ -26,13 +26,13 @@ BASE_MONSTER_HP = 20
 BASE_MONSTER_DAMAGE = 5
 BASE_MONSTER_SPEED = 0.5
 SPAWN_INTERVAL = 3000  # 3 секунды
-MONSTER_PATH_Y = 50  # Высота дорожки монстров
+MONSTER_PATH_Y = 200  # Высота дорожки монстров
 GRID_OFFSET_Y = MONSTER_PATH_Y + 70  # Смещаем игровое поле ниже
 
 # Настройки крепости
 CASTLE_HP = 100
-CASTLE_WIDTH = 60
-CASTLE_HEIGHT = 100
+CASTLE_WIDTH = 80
+CASTLE_HEIGHT = 120
 
 # Меню
 MENU_BG_COLOR = (50, 50, 80)
@@ -47,25 +47,27 @@ DIFFICULTY_SETTINGS = {
         "monster_damage": 3,
         "monster_speed": 0.3,
         "spawn_interval": 4000,
-        "castle_hp": 100
+        "castle_hp": 100,
+        "max_moves": 30
     },
     "любитель": {
         "monster_hp": 25,
         "monster_damage": 5,
         "monster_speed": 0.5,
         "spawn_interval": 3000,
-        "castle_hp": 100
+        "castle_hp": 100,
+        "max_moves": 20
     },
     "профи": {
         "monster_hp": 40,
         "monster_damage": 8,
         "monster_speed": 0.7,
         "spawn_interval": 2000,
-        "castle_hp": 100
+        "castle_hp": 100,
+        "max_moves": 15
     }
 }
 
-WIN_SCORE = 2000  # Количество очков для победы
 MIN_CASTLE_HP = 0
 TILE_FALL_SPEED = 0.5  # Можно регулировать скорость анимации
 SHADOW_COLOR = (100, 100, 100, 150)  # Цвет тени для тайлов

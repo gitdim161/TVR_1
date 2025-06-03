@@ -1,5 +1,5 @@
 import pygame
-from constants import SCREEN_WIDTH, CASTLE_WIDTH, CASTLE_HEIGHT, GRAY, BLACK, GREEN, MONSTER_PATH_Y
+from constants import SCREEN_WIDTH, CASTLE_WIDTH, CASTLE_HEIGHT, BLACK, GREEN, MONSTER_PATH_Y
 
 
 class Castle:
@@ -8,12 +8,20 @@ class Castle:
         self.max_hp = hp
         self.width = CASTLE_WIDTH
         self.height = CASTLE_HEIGHT
-        self.x = SCREEN_WIDTH - 50
-        self.y = MONSTER_PATH_Y - 10
+        self.x = SCREEN_WIDTH - 120
+        self.y = MONSTER_PATH_Y - 75
+
+        # Загрузка изображения
+        self.image = pygame.image.load(r'images\castle.png').convert_alpha()
+        # Масштабирование под нужный размер
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
     def draw(self, surface):
-        pygame.draw.rect(
-            surface, GRAY, (self.x, self.y, self.width, self.height))
+        if self.image:
+            surface.blit(self.image, (self.x, self.y))
+        else:
+            pygame.draw.rect(surface, (150, 150, 150), (self.x, self.y, self.width, self.height))
+            pygame.draw.rect(surface, BLACK, (self.x, self.y - 20, self.width, 10))
         pygame.draw.rect(surface, BLACK, (self.x, self.y - 20, self.width, 10))
         pygame.draw.rect(surface, GREEN,
                          (self.x, self.y - 20, self.width * (self.hp / self.max_hp), 10))

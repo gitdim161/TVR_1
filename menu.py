@@ -1,5 +1,5 @@
 import pygame
-from constants import BUTTON_COLOR, BUTTON_HOVER_COLOR, BLACK, TEXT_COLOR, SCREEN_WIDTH, MENU_BG_COLOR
+from constants import BUTTON_COLOR, BUTTON_HOVER_COLOR, BLACK, TEXT_COLOR, SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 class Button:
@@ -30,6 +30,9 @@ class Menu:
         self.difficulty_buttons = []
         self.selected_difficulty = "любитель"  # По умолчанию
         self.show_difficulty = False
+        self.background = pygame.image.load(r'images\menu.jpg').convert()
+        # Масштабируем под размер экрана
+        self.background = pygame.transform.scale(self.background, (SCREEN_WIDTH, SCREEN_HEIGHT))
         self.create_buttons()
 
     def create_buttons(self):
@@ -38,9 +41,9 @@ class Menu:
 
         # Основные кнопки
         self.buttons = [
-            Button(center_x, 150, width, height, "Начать игру", "start"),
-            Button(center_x, 220, width, height, "Сложность", "difficulty"),
-            Button(center_x, 350, width, height, "Выход", "exit")
+            Button(center_x, 250, width, height, "Начать игру", "start"),
+            Button(center_x, 320, width, height, "Сложность", "difficulty"),
+            Button(center_x, 450, width, height, "Выход", "exit")
         ]
 
         # Кнопки выбора сложности
@@ -79,7 +82,16 @@ class Menu:
         return None
 
     def draw(self):
-        self.screen.fill(MENU_BG_COLOR)
+        # Рисуем фон (изображение или цвет)
+        if self.background:
+            self.screen.blit(self.background, (0, 0))
+        else:
+            self.screen.fill((50, 50, 80))  # Стандартный цвет фона
+
+        # Затемнение фона для лучшей читаемости текста
+        overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 128))  # Полупрозрачный чёрный
+        self.screen.blit(overlay, (0, 0))
 
         # Заголовок
         title_font = pygame.font.SysFont('Arial', 50, bold=True)
@@ -93,7 +105,7 @@ class Menu:
             diff_text = diff_font.render(
                 f"Сложность: {self.selected_difficulty}", True, TEXT_COLOR)
             self.screen.blit(diff_text, (SCREEN_WIDTH//2 -
-                             diff_text.get_width()//2, 280))
+                             diff_text.get_width()//2, 380))
 
         # Рисуем активные кнопки
         buttons = self.difficulty_buttons if self.show_difficulty else self.buttons

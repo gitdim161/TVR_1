@@ -14,6 +14,26 @@ class Tile:
         self.fall_speed = 0
         self.special_effect = None  # 'row_clear', 'column_clear', 'color_clear'
         self.effect_timer = 0
+        self.image = None
+        self.load_image()
+
+    def load_image(self):
+        """Загружает изображение в зависимости от цвета тайла"""
+        color_to_image = {
+            (255, 0, 0): r'images\fire.png',     # RED
+            (0, 255, 0): r'images\air.png',   # GREEN
+            (0, 0, 255): r'images\water.png',    # BLUE
+            (255, 255, 0): r'images\light.png',  # YELLOW
+            (255, 0, 255): r'images\dark.png',  # PURPLE
+            (0, 255, 255): r'images\earth.png'   # CYAN
+        }
+        try:
+            image_file = color_to_image.get(self.color, r'images\monster_0.png')
+            self.image = pygame.image.load(image_file).convert_alpha()
+            self.image = pygame.transform.scale(self.image, (TILE_SIZE, TILE_SIZE))
+        except:
+            print(f"Не удалось загрузить изображение для тайла {self.color}")
+            self.image = None
 
     def update(self):
         """Обновляет позицию для анимации падения"""
@@ -37,6 +57,14 @@ class Tile:
         self.rect.y = self.pixel_y
 
     def draw(self, surface):
-        """Отрисовывает тайл"""
-        pygame.draw.rect(surface, self.color, self.rect)
-        pygame.draw.rect(surface, BLACK, self.rect, 1)
+        if self.image:
+            # Рисуем изображение тайла
+            surface.blit(self.image, (self.pixel_x, self.pixel_y))
+
+            # Если есть спецэффект, рисуем поверх
+            if self.special_effect:
+                self.draw_effect(surface)
+        else:
+            # Запасной вариант - цветной прямоугольник
+            pygame.draw.rect(surface, self.color, self.rect)
+            pygame.draw.rect(surface, BLACK, self.rect, 1)

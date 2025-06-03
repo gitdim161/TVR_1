@@ -3,7 +3,7 @@ import random
 from tile import Tile
 from monster import Monster
 from castle import Castle
-from constants import GRID_SIZE, SPAWN_INTERVAL, COLORS, TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, SCREEN_WIDTH, BLACK, RED, WHITE, DIFFICULTY_SETTINGS, YELLOW, SCREEN_HEIGHT, MONSTER_PATH_Y, BUTTON_COLOR, TEXT_COLOR, WIN_SCORE, GREEN, SHADOW_COLOR
+from constants import GRID_SIZE, SPAWN_INTERVAL, COLORS, TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, SCREEN_WIDTH, BLACK, RED, WHITE, DIFFICULTY_SETTINGS, YELLOW, SCREEN_HEIGHT, MONSTER_PATH_Y, BUTTON_COLOR, TEXT_COLOR, GREEN, SHADOW_COLOR
 
 
 class Game:
@@ -12,11 +12,11 @@ class Game:
         self.difficulty = difficulty
         self.grid = []
         self.selected_tile = None
-        self.score = 0
-        self.level = 1
         self.monsters = []
         self.castle = Castle(settings["castle_hp"])
         self.spawn_interval = settings["spawn_interval"]
+        self.max_moves = settings["max_moves"]
+        self.moves_left = self.max_moves
         self.monster_settings = {
             "hp": settings["monster_hp"],
             "damage": settings["monster_damage"],
@@ -26,9 +26,9 @@ class Game:
         self.last_time = pygame.time.get_ticks()
         self.game_over = False
         self.font = pygame.font.SysFont('Arial', 24)
-        self.menu_button = pygame.Rect(SCREEN_WIDTH - 120, 500, 100, 40)
-        self.initialize_grid()
+        self.menu_button = pygame.Rect(50, 10, 100, 40)
         self.win = False
+        self.initialize_grid()
 
     def initialize_grid(self):
         self.grid = []
@@ -87,14 +87,11 @@ class Game:
 
         # Рисуем информацию
         font = pygame.font.SysFont('Arial', 24)
-        score_text = font.render(f"Очки: {self.score}", True, BLACK)
-        level_text = font.render(f"Уровень: {self.level}", True, BLACK)
-        castle_hp = max(0, self.castle.hp)
+        moves_text = font.render(f"Ходы: {self.moves_left}/{self.max_moves}", True, BLACK)
         castle_hp_text = font.render(
             f"Крепость: {self.castle.hp}/{self.castle.max_hp}", True, BLACK)
 
-        surface.blit(score_text, (500, 500))
-        surface.blit(level_text, (500, 540))
+        surface.blit(moves_text, (500, 500))
         surface.blit(castle_hp_text, (SCREEN_WIDTH - 200, 10))
 
         if self.game_over:
@@ -109,9 +106,9 @@ class Game:
 
         if self.win:  # Добавляем сообщение о победе
             win_text = self.font.render(
-                f"ПОБЕДА! Набрано {self.score} очков!", True, GREEN)
+                f'ПОБЕДА!', True, GREEN)
             restart_text = self.font.render(
-                "Нажмите R для рестарта", True, BLACK)
+                'Нажмите R для рестарта', True, BLACK)
             surface.blit(win_text, (SCREEN_WIDTH // 2 -
                          150, SCREEN_HEIGHT // 2 - 30))
             surface.blit(restart_text, (SCREEN_WIDTH //
@@ -147,10 +144,6 @@ class Game:
         if self.game_over or self.win:
             return None
 
-        # Проверяем условие победы
-        if self.score >= WIN_SCORE:
-            self.win = True
-            return
         x = (pos[0] - GRID_OFFSET_X) // TILE_SIZE
         y = (pos[1] - GRID_OFFSET_Y) // TILE_SIZE
 
@@ -166,11 +159,13 @@ class Game:
             if (abs(x - prev_x) == 1 and y == prev_y) or (abs(y - prev_y) == 1 and x == prev_x):
                 # Меняем тайлы местами
                 self.swap_tiles((prev_x, prev_y), (x, y))
+                self.moves_left -= 1
 
                 # Проверяем, есть ли совпадения
                 if not self.find_matches():
                     # Если нет, меняем обратно
                     self.swap_tiles((x, y), (prev_x, prev_y))
+                    self.moves_left += 1
                 else:
                     # Если есть, удаляем совпадения и обновляем поле
                     self.remove_matches()
@@ -180,6 +175,11 @@ class Game:
                     while self.find_matches():
                         self.remove_matches()
                         self.fill_empty_spaces()
+
+                if self.moves_left <= 0 and len(self.monsters) > 0:
+                    self.game_over = True
+                elif len(self.monsters) == 0 and self.spawn_timer >= self.spawn_interval:
+                    self.win = True
 
             self.selected_tile = None
 
@@ -314,15 +314,12 @@ class Game:
 
         # Наносим урон текущему монстру
         self.monsters[0].hp -= damage
-        self.score += damage
-
-        if self.score >= WIN_SCORE:
-            self.win = True
-            return
 
         # Если монстр убит, удаляем его
         if self.monsters[0].hp <= 0:
             self.monsters.pop(0)
+            if len(self.monsters) == 0:
+                self.win = True
 
     def fill_empty_spaces(self):
         # Сначала перемещаем существующие тайлы вниз
@@ -388,7 +385,7 @@ class Game:
             self.spawn_monster()
             self.spawn_timer = 0
             # Уменьшаем интервал спавна с уровнем
-            self.spawn_interval = max(1000, SPAWN_INTERVAL - self.level * 200)
+            self.spawn_interval = max(1000, SPAWN_INTERVAL - self.moves_left * 20)
 
         # Обновляем монстров
         for monster in self.monsters[:]:
@@ -402,6 +399,3 @@ class Game:
                 if self.castle.take_damage(monster.damage):
                     self.game_over = True
                 self.monsters.remove(monster)
-
-        if self.score >= WIN_SCORE:
-            self.win = True
