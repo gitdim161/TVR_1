@@ -1,15 +1,15 @@
 import pygame
-from constants import SCREEN_WIDTH, CASTLE_WIDTH, CASTLE_HEIGHT, BLACK, GREEN, MONSTER_PATH_Y
+from constants import SCREEN_WIDTH, BLACK, GREEN, BRIDGE_X, BRIDGE_Y, BRIDGE_WIDTH
 
 
 class Castle:
     def __init__(self, hp=100):
         self.hp = hp
         self.max_hp = hp
-        self.width = CASTLE_WIDTH
-        self.height = CASTLE_HEIGHT
-        self.x = SCREEN_WIDTH - 120
-        self.y = MONSTER_PATH_Y - 75
+        self.width = 200
+        self.height = 250
+        self.x = BRIDGE_X + BRIDGE_WIDTH - 40  # Ставим крепость в конце моста
+        self.y = BRIDGE_Y - self.height + 30  # Выравниваем по низу моста
 
         # Загрузка изображения
         self.image = pygame.image.load(r'images\castle.png').convert_alpha()

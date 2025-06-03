@@ -3,7 +3,7 @@ import random
 from tile import Tile
 from monster import Monster
 from castle import Castle
-from constants import GRID_SIZE, SPAWN_INTERVAL, COLORS, TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, SCREEN_WIDTH, BLACK, RED, WHITE, DIFFICULTY_SETTINGS, YELLOW, SCREEN_HEIGHT, MONSTER_PATH_Y, BUTTON_COLOR, TEXT_COLOR, GREEN, SHADOW_COLOR
+from constants import GRID_SIZE_X, GRID_SIZE_Y, SPAWN_INTERVAL, COLORS, TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, SCREEN_WIDTH, BLACK, RED, WHITE, DIFFICULTY_SETTINGS, YELLOW, SCREEN_HEIGHT, MONSTER_PATH_Y, BUTTON_COLOR, TEXT_COLOR, GREEN, SHADOW_COLOR, BRIDGE_WIDTH, BRIDGE_HEIGHT, BRIDGE_X, BRIDGE_Y
 
 
 class Game:
@@ -14,27 +14,34 @@ class Game:
         self.selected_tile = None
         self.monsters = []
         self.castle = Castle(settings["castle_hp"])
+        self.initial_spawn_interval = settings["spawn_interval"]
         self.spawn_interval = settings["spawn_interval"]
-        self.max_moves = settings["max_moves"]
-        self.moves_left = self.max_moves
+        self.spawn_acceleration = settings["spawn_acceleration"]
+        self.total_monsters = settings["total_monsters"]
+        self.monsters_spawned = 0
         self.monster_settings = {
             "hp": settings["monster_hp"],
             "damage": settings["monster_damage"],
             "speed": settings["monster_speed"]
         }
         self.spawn_timer = 0
+        self.game_time = 0
         self.last_time = pygame.time.get_ticks()
         self.game_over = False
         self.font = pygame.font.SysFont('Arial', 24)
         self.menu_button = pygame.Rect(50, 10, 100, 40)
         self.win = False
         self.initialize_grid()
+        self.bridge_image = pygame.image.load(r'images\bridge.png').convert_alpha()
+        self.bridge_image = pygame.transform.scale(self.bridge_image, (BRIDGE_WIDTH, BRIDGE_HEIGHT))
+        self.background = pygame.image.load(r'images\game.png').convert()
+        self.background = pygame.transform.scale(self.background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
     def initialize_grid(self):
         self.grid = []
-        for x in range(GRID_SIZE):
+        for x in range(GRID_SIZE_X):
             column = []
-            for y in range(GRID_SIZE):
+            for y in range(GRID_SIZE_Y):
                 color = random.choice(COLORS)
                 column.append(Tile(x, y, color))
             self.grid.append(column)
@@ -44,10 +51,14 @@ class Game:
             self.fill_empty_spaces()
 
     def draw(self, surface):
-        surface.fill(WHITE)
+        surface.blit(self.background, (0, 0))
+
+        # Рисуем мост
+        surface.blit(self.bridge_image, (BRIDGE_X, BRIDGE_Y))
+
         # Рисуем сетку
-        for x in range(GRID_SIZE):
-            for y in range(GRID_SIZE):
+        for x in range(GRID_SIZE_X):
+            for y in range(GRID_SIZE_Y):
                 tile = self.grid[x][y]
                 if tile is not None:
                     tile.draw(surface)
@@ -60,21 +71,12 @@ class Game:
                 TILE_SIZE, TILE_SIZE
             )
             pygame.draw.rect(surface, WHITE, rect, 3)
-        pygame.draw.rect(
-            surface, RED, (0, MONSTER_PATH_Y - 20, SCREEN_WIDTH, 60))
-        pygame.draw.rect(
-            surface, BLACK, (0, MONSTER_PATH_Y - 20, SCREEN_WIDTH, 60), 2)
-
-        pygame.draw.rect(surface, (150, 150, 150),
-                         (0, MONSTER_PATH_Y - 15, SCREEN_WIDTH, 50))
-        pygame.draw.lines(surface, YELLOW, False, [
-                          (0, MONSTER_PATH_Y + 10), (SCREEN_WIDTH, MONSTER_PATH_Y + 10)], 3)
         shadow_surface = pygame.Surface(
             (TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
         pygame.draw.rect(shadow_surface, SHADOW_COLOR,
                          (0, 0, TILE_SIZE, TILE_SIZE), border_radius=5)
-        for x in range(GRID_SIZE):
-            for y in range(GRID_SIZE):
+        for x in range(GRID_SIZE_X):
+            for y in range(GRID_SIZE_Y):
                 if self.grid[x][y] is not None:
                     # Рисуем сам тайл
                     self.grid[x][y].draw(surface)
@@ -87,11 +89,9 @@ class Game:
 
         # Рисуем информацию
         font = pygame.font.SysFont('Arial', 24)
-        moves_text = font.render(f"Ходы: {self.moves_left}/{self.max_moves}", True, BLACK)
-        castle_hp_text = font.render(
+        castle_hp_text = self.font.render(
             f"Крепость: {self.castle.hp}/{self.castle.max_hp}", True, BLACK)
 
-        surface.blit(moves_text, (500, 500))
         surface.blit(castle_hp_text, (SCREEN_WIDTH - 200, 10))
 
         if self.game_over:
@@ -114,8 +114,8 @@ class Game:
             surface.blit(restart_text, (SCREEN_WIDTH //
                          2 - 120, SCREEN_HEIGHT // 2 + 20))
 
-        for x in range(GRID_SIZE):
-            for y in range(GRID_SIZE):
+        for x in range(GRID_SIZE_X):
+            for y in range(GRID_SIZE_Y):
                 tile = self.grid[x][y]
                 if tile is not None and hasattr(tile, 'special_effect'):
                     if tile.special_effect == 'row_clear':
@@ -147,7 +147,7 @@ class Game:
         x = (pos[0] - GRID_OFFSET_X) // TILE_SIZE
         y = (pos[1] - GRID_OFFSET_Y) // TILE_SIZE
 
-        if not (0 <= x < GRID_SIZE and 0 <= y < GRID_SIZE):
+        if not (0 <= x < GRID_SIZE_X and 0 <= y < GRID_SIZE_Y):
             return None
         if self.grid[x][y] is None:  # Проверка на пустую ячейку
             return None
@@ -159,13 +159,11 @@ class Game:
             if (abs(x - prev_x) == 1 and y == prev_y) or (abs(y - prev_y) == 1 and x == prev_x):
                 # Меняем тайлы местами
                 self.swap_tiles((prev_x, prev_y), (x, y))
-                self.moves_left -= 1
 
                 # Проверяем, есть ли совпадения
                 if not self.find_matches():
                     # Если нет, меняем обратно
                     self.swap_tiles((x, y), (prev_x, prev_y))
-                    self.moves_left += 1
                 else:
                     # Если есть, удаляем совпадения и обновляем поле
                     self.remove_matches()
@@ -176,11 +174,6 @@ class Game:
                         self.remove_matches()
                         self.fill_empty_spaces()
 
-                if self.moves_left <= 0 and len(self.monsters) > 0:
-                    self.game_over = True
-                elif len(self.monsters) == 0 and self.spawn_timer >= self.spawn_interval:
-                    self.win = True
-
             self.selected_tile = None
 
     def swap_tiles(self, pos1, pos2):
@@ -188,8 +181,8 @@ class Game:
         x2, y2 = pos2
 
         # Проверка на существование тайлов
-        if not (0 <= x1 < GRID_SIZE and 0 <= y1 < GRID_SIZE and
-                0 <= x2 < GRID_SIZE and 0 <= y2 < GRID_SIZE):
+        if not (0 <= x1 < GRID_SIZE_X and 0 <= y1 < GRID_SIZE_Y and
+                0 <= x2 < GRID_SIZE_X and 0 <= y2 < GRID_SIZE_Y):
             return False
 
         if self.grid[x1][y1] is None or self.grid[x2][y2] is None:
@@ -205,9 +198,9 @@ class Game:
     def find_matches(self):
         matches = []
         # Проверяем горизонтальные совпадения
-        for y in range(GRID_SIZE):
+        for y in range(GRID_SIZE_Y):
             x = 0
-            while x < GRID_SIZE - 2:
+            while x < GRID_SIZE_X - 2:
                 # Пропускаем пустые ячейки
                 if self.grid[x][y] is None:
                     x += 1
@@ -217,7 +210,7 @@ class Game:
                 match_length = 1
 
                 # Проверяем следующие тайлы
-                while (x + match_length < GRID_SIZE and
+                while (x + match_length < GRID_SIZE_X and
                        self.grid[x + match_length][y] is not None and
                        self.grid[x + match_length][y].color == color):
                     match_length += 1
@@ -229,9 +222,9 @@ class Game:
                     x += 1
 
         # Проверяем вертикальные совпадения
-        for x in range(GRID_SIZE):
+        for x in range(GRID_SIZE_X):
             y = 0
-            while y < GRID_SIZE - 2:
+            while y < GRID_SIZE_Y - 2:
                 # Пропускаем пустые ячейки
                 if self.grid[x][y] is None:
                     y += 1
@@ -241,7 +234,7 @@ class Game:
                 match_length = 1
 
                 # Проверяем следующие тайлы
-                while (y + match_length < GRID_SIZE and
+                while (y + match_length < GRID_SIZE_Y and
                        self.grid[x][y + match_length] is not None and
                        self.grid[x][y + match_length].color == color):
                     match_length += 1
@@ -272,21 +265,21 @@ class Game:
                 # 4 в ряд - уничтожаем всю строку или столбец
                 if is_horizontal:
                     # Горизонтальное - уничтожаем строку
-                    for x in range(GRID_SIZE):
+                    for x in range(GRID_SIZE_X):
                         positions_to_clear.add((x, first_y))
                 else:
                     # Вертикальное - уничтожаем столбец
-                    for y in range(GRID_SIZE):
+                    for y in range(GRID_SIZE_Y):
                         positions_to_clear.add((first_x, y))
-                damage += GRID_SIZE * 2  # Больший урон за спецэффект
+                damage += GRID_SIZE_X * 2  # Больший урон за спецэффект
 
             elif match_length >= 5:
                 # 5+ в ряд - уничтожаем все тайлы этого цвета
-                for x in range(GRID_SIZE):
-                    for y in range(GRID_SIZE):
+                for x in range(GRID_SIZE_X):
+                    for y in range(GRID_SIZE_Y):
                         if self.grid[x][y] is not None and self.grid[x][y].color == color:
                             positions_to_clear.add((x, y))
-                damage += GRID_SIZE * GRID_SIZE  # Очень большой урон
+                damage += GRID_SIZE_X * GRID_SIZE_Y  # Очень большой урон
 
             else:
                 # Обычное совпадение 3 в ряд
@@ -323,9 +316,9 @@ class Game:
 
     def fill_empty_spaces(self):
         # Сначала перемещаем существующие тайлы вниз
-        for x in range(GRID_SIZE):
+        for x in range(GRID_SIZE_X):
             empty_spots = []
-            for y in range(GRID_SIZE - 1, -1, -1):
+            for y in range(GRID_SIZE_Y - 1, -1, -1):
                 if self.grid[x][y] is None:
                     empty_spots.append(y)
                 elif empty_spots:
@@ -366,8 +359,8 @@ class Game:
             return
 
         # Обновляем анимации тайлов
-        for x in range(GRID_SIZE):
-            for y in range(GRID_SIZE):
+        for x in range(GRID_SIZE_X):
+            for y in range(GRID_SIZE_Y):
                 tile = self.grid[x][y]
                 if tile is not None:
                     tile.update()
@@ -378,14 +371,22 @@ class Game:
         current_time = pygame.time.get_ticks()
         delta_time = current_time - self.last_time
         self.last_time = current_time
+        self.game_time += delta_time
+        self.spawn_interval = max(500, self.initial_spawn_interval -
+                                 (self.game_time // 1000) * self.spawn_acceleration)
 
         # Спавн монстров
         self.spawn_timer += delta_time
-        if self.spawn_timer >= self.spawn_interval and (not self.monsters or len(self.monsters) < 3):
+        if (self.spawn_timer >= self.spawn_interval and
+            self.monsters_spawned < self.total_monsters and
+            len(self.monsters) < 5):  # Максимум 3 монстра на экране
             self.spawn_monster()
             self.spawn_timer = 0
-            # Уменьшаем интервал спавна с уровнем
-            self.spawn_interval = max(1000, SPAWN_INTERVAL - self.moves_left * 20)
+            self.monsters_spawned += 1
+
+            # Проверяем победу (все монстры заспавнены и уничтожены)
+            if self.monsters_spawned >= self.total_monsters and len(self.monsters) == 0:
+                self.win = True
 
         # Обновляем монстров
         for monster in self.monsters[:]:

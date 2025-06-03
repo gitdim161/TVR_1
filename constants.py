@@ -4,7 +4,8 @@ SCREEN_HEIGHT = 800
 FPS = 60
 
 # Настройки сетки
-GRID_SIZE = 8
+GRID_SIZE_X = 24
+GRID_SIZE_Y = 8
 TILE_SIZE = 50
 GRID_OFFSET_X = 50
 GRID_OFFSET_Y = 100
@@ -26,13 +27,6 @@ BASE_MONSTER_HP = 20
 BASE_MONSTER_DAMAGE = 5
 BASE_MONSTER_SPEED = 0.5
 SPAWN_INTERVAL = 3000  # 3 секунды
-MONSTER_PATH_Y = 200  # Высота дорожки монстров
-GRID_OFFSET_Y = MONSTER_PATH_Y + 70  # Смещаем игровое поле ниже
-
-# Настройки крепости
-CASTLE_HP = 100
-CASTLE_WIDTH = 80
-CASTLE_HEIGHT = 120
 
 # Меню
 MENU_BG_COLOR = (50, 50, 80)
@@ -48,26 +42,34 @@ DIFFICULTY_SETTINGS = {
         "monster_speed": 0.3,
         "spawn_interval": 4000,
         "castle_hp": 100,
-        "max_moves": 30
+        "total_monsters": 20,  # Общее количество монстров за игру
+        "spawn_acceleration": 50  # Ускорение спавна
     },
     "любитель": {
         "monster_hp": 25,
         "monster_damage": 5,
         "monster_speed": 0.5,
-        "spawn_interval": 3000,
+        "spawn_interval": 4000,
         "castle_hp": 100,
-        "max_moves": 20
+        "total_monsters": 30,
+        "spawn_acceleration": 70
     },
     "профи": {
         "monster_hp": 40,
         "monster_damage": 8,
         "monster_speed": 0.7,
-        "spawn_interval": 2000,
+        "spawn_interval": 4000,
         "castle_hp": 100,
-        "max_moves": 15
+        "total_monsters": 40,
+        "spawn_acceleration": 100
     }
 }
 
 MIN_CASTLE_HP = 0
 TILE_FALL_SPEED = 0.5  # Можно регулировать скорость анимации
 SHADOW_COLOR = (100, 100, 100, 150)  # Цвет тени для тайлов
+BRIDGE_WIDTH = SCREEN_WIDTH - 200  # Ширина моста
+BRIDGE_HEIGHT = 150  # Высота моста
+BRIDGE_X = 0  # Позиция моста по X
+BRIDGE_Y = 650  # Позиция моста по Y (выше игрового поля)
+MONSTER_PATH_Y = BRIDGE_Y + BRIDGE_HEIGHT // 2 - 20  # Центр моста для движения монстров

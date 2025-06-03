@@ -27,13 +27,9 @@ class Tile:
             (255, 0, 255): r'images\dark.png',  # PURPLE
             (0, 255, 255): r'images\earth.png'   # CYAN
         }
-        try:
-            image_file = color_to_image.get(self.color, r'images\monster_0.png')
-            self.image = pygame.image.load(image_file).convert_alpha()
-            self.image = pygame.transform.scale(self.image, (TILE_SIZE, TILE_SIZE))
-        except:
-            print(f"Не удалось загрузить изображение для тайла {self.color}")
-            self.image = None
+        image_file = color_to_image.get(self.color, r'images\default.png')
+        self.image = pygame.image.load(image_file).convert_alpha()
+        self.image = pygame.transform.scale(self.image, (TILE_SIZE, TILE_SIZE))
 
     def update(self):
         """Обновляет позицию для анимации падения"""
@@ -68,3 +64,19 @@ class Tile:
             # Запасной вариант - цветной прямоугольник
             pygame.draw.rect(surface, self.color, self.rect)
             pygame.draw.rect(surface, BLACK, self.rect, 1)
+
+    def draw_effect(self, surface):
+        """Отрисовывает спецэффекты для тайла"""
+        effect_surface = pygame.Surface((TILE_SIZE, TILE_SIZE), pygame.SRCALPHA)
+
+        if self.special_effect == 'row_clear':
+            pygame.draw.line(effect_surface, (255, 255, 0, 150),
+                            (0, TILE_SIZE//2), (TILE_SIZE, TILE_SIZE//2), 3)
+        elif self.special_effect == 'column_clear':
+            pygame.draw.line(effect_surface, (255, 255, 0, 150),
+                            (TILE_SIZE//2, 0), (TILE_SIZE//2, TILE_SIZE), 3)
+        elif self.special_effect == 'color_clear':
+            pygame.draw.circle(effect_surface, (255, 255, 0, 150),
+                            (TILE_SIZE//2, TILE_SIZE//2), TILE_SIZE//2, 2)
+
+        surface.blit(effect_surface, (self.pixel_x, self.pixel_y))
