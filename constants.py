@@ -37,39 +37,39 @@ TEXT_COLOR = (255, 255, 255)
 # Добавляем настройки сложности
 DIFFICULTY_SETTINGS = {
     "новичок": {
-        "monster_hp": 15,
-        "monster_damage": 3,
-        "monster_speed": 0.3,
+        "monster_hp": 20,
+        "monster_damage": 5,
+        "monster_speed": 0.4,
         "spawn_interval": 4000,
         "castle_hp": 100,
         "total_monsters": 20,  # Общее количество монстров за игру
         "spawn_acceleration": 50  # Ускорение спавна
     },
     "любитель": {
-        "monster_hp": 25,
-        "monster_damage": 5,
-        "monster_speed": 0.5,
+        "monster_hp": 30,
+        "monster_damage": 10,
+        "monster_speed": 0.6,
         "spawn_interval": 4000,
         "castle_hp": 100,
-        "total_monsters": 30,
+        "total_monsters": 20,
         "spawn_acceleration": 70
     },
     "профи": {
-        "monster_hp": 40,
-        "monster_damage": 8,
-        "monster_speed": 0.7,
+        "monster_hp": 45,
+        "monster_damage": 15,
+        "monster_speed": 0.8,
         "spawn_interval": 4000,
         "castle_hp": 100,
-        "total_monsters": 40,
+        "total_monsters": 20,
         "spawn_acceleration": 100
     }
 }
 
-MIN_CASTLE_HP = 0
 TILE_FALL_SPEED = 0.5  # Можно регулировать скорость анимации
 SHADOW_COLOR = (100, 100, 100, 150)  # Цвет тени для тайлов
 BRIDGE_WIDTH = SCREEN_WIDTH - 200  # Ширина моста
 BRIDGE_HEIGHT = 150  # Высота моста
 BRIDGE_X = 0  # Позиция моста по X
 BRIDGE_Y = 650  # Позиция моста по Y (выше игрового поля)
-MONSTER_PATH_Y = BRIDGE_Y + BRIDGE_HEIGHT // 2 - 20  # Центр моста для движения монстров
+# Центр моста для движения монстров
+MONSTER_PATH_Y = BRIDGE_Y + BRIDGE_HEIGHT // 2 - 20

@@ -1,5 +1,5 @@
 import pygame
-from constants import TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, BLACK
+from constants import TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y
 
 
 class Tile:
@@ -53,17 +53,10 @@ class Tile:
         self.rect.y = self.pixel_y
 
     def draw(self, surface):
-        if self.image:
-            # Рисуем изображение тайла
-            surface.blit(self.image, (self.pixel_x, self.pixel_y))
-
-            # Если есть спецэффект, рисуем поверх
-            if self.special_effect:
-                self.draw_effect(surface)
-        else:
-            # Запасной вариант - цветной прямоугольник
-            pygame.draw.rect(surface, self.color, self.rect)
-            pygame.draw.rect(surface, BLACK, self.rect, 1)
+        surface.blit(self.image, (self.pixel_x, self.pixel_y))
+        # Если есть спецэффект, рисуем поверх
+        if self.special_effect:
+            self.draw_effect(surface)
 
     def draw_effect(self, surface):
         """Отрисовывает спецэффекты для тайла"""
@@ -71,12 +64,12 @@ class Tile:
 
         if self.special_effect == 'row_clear':
             pygame.draw.line(effect_surface, (255, 255, 0, 150),
-                            (0, TILE_SIZE//2), (TILE_SIZE, TILE_SIZE//2), 3)
+                             (0, TILE_SIZE//2), (TILE_SIZE, TILE_SIZE//2), 3)
         elif self.special_effect == 'column_clear':
             pygame.draw.line(effect_surface, (255, 255, 0, 150),
-                            (TILE_SIZE//2, 0), (TILE_SIZE//2, TILE_SIZE), 3)
+                             (TILE_SIZE//2, 0), (TILE_SIZE//2, TILE_SIZE), 3)
         elif self.special_effect == 'color_clear':
             pygame.draw.circle(effect_surface, (255, 255, 0, 150),
-                            (TILE_SIZE//2, TILE_SIZE//2), TILE_SIZE//2, 2)
+                               (TILE_SIZE//2, TILE_SIZE//2), TILE_SIZE//2, 2)
 
         surface.blit(effect_surface, (self.pixel_x, self.pixel_y))

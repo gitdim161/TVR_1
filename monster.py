@@ -1,5 +1,5 @@
 import pygame
-from constants import SCREEN_WIDTH, BLACK, GREEN, MONSTER_PATH_Y, BRIDGE_X, BRIDGE_Y, BRIDGE_HEIGHT, BRIDGE_WIDTH
+from constants import BLACK, GREEN, MONSTER_PATH_Y, BRIDGE_X, BRIDGE_WIDTH
 
 
 class Monster:
@@ -22,6 +22,7 @@ class Monster:
         self.x = BRIDGE_X + self.progress * BRIDGE_WIDTH
 
     def draw(self, surface):
+        '''Отрисовка монстров и полоски hp'''
         surface.blit(self.image, (self.x, self.y))
         pygame.draw.rect(surface, BLACK, (self.x, self.y - 10, self.width, 5))
         pygame.draw.rect(surface, GREEN,

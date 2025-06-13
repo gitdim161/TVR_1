@@ -82,11 +82,8 @@ class Menu:
         return None
 
     def draw(self):
-        # Рисуем фон (изображение или цвет)
-        if self.background:
-            self.screen.blit(self.background, (0, 0))
-        else:
-            self.screen.fill((50, 50, 80))  # Стандартный цвет фона
+        '''Отрисовка меню'''
+        self.screen.blit(self.background, (0, 0))
 
         # Затемнение фона для лучшей читаемости текста
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
