@@ -1,5 +1,5 @@
 import pygame
-from constants import BLACK, GREEN, BRIDGE_X, BRIDGE_Y, BRIDGE_WIDTH
+from src.utils.constants import BLACK, GREEN, BRIDGE_X, BRIDGE_Y, BRIDGE_WIDTH
 
 
 class Castle:
@@ -17,7 +17,7 @@ class Castle:
         self.y = BRIDGE_Y - self.height + 30  # Выравниваем по низу моста
 
         # Загрузка изображения
-        self.image = pygame.image.load(r'images\castle.png').convert_alpha()
+        self.image = pygame.image.load(r'assets\images\castle.png').convert_alpha()
         # Масштабирование под нужный размер
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 

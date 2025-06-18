@@ -1,5 +1,5 @@
 import pygame
-from constants import BUTTON_COLOR, BUTTON_HOVER_COLOR, BLACK, TEXT_COLOR, SCREEN_WIDTH, SCREEN_HEIGHT
+from src.utils.constants import BUTTON_COLOR, BUTTON_HOVER_COLOR, BLACK, TEXT_COLOR, SCREEN_WIDTH, SCREEN_HEIGHT
 
 
 class Button:
@@ -57,9 +57,10 @@ class Menu:
         self.difficulty_buttons = []
         self.selected_difficulty = "любитель"  # По умолчанию
         self.show_difficulty = False
-        self.background = pygame.image.load(r'images\menu.jpg').convert()
+        self.background = pygame.image.load(r'assets\images\menu.jpg').convert()
         # Масштабируем под размер экрана
         self.background = pygame.transform.scale(self.background, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        self.music_on = True
         self.create_buttons()
 
     def create_buttons(self):
@@ -79,6 +80,9 @@ class Menu:
             Button(center_x, 290, width, height, "Профи", "professional"),
             Button(center_x, 360, width, height, "Назад", "back")
         ]
+        self.buttons.append(Button(center_x, 390, width, height, 
+                            "Музыка: Вкл" if self.music_on else "Музыка: Выкл",
+                             "toggle_music"))
 
     def handle_event(self, event):
         """Обрабатывает события меню.
@@ -93,6 +97,13 @@ class Menu:
             buttons = self.difficulty_buttons if self.show_difficulty else self.buttons
             for button in buttons:
                 button.is_hovered = button.rect.collidepoint(event.pos)
+
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            for button in self.buttons:
+                if button.is_hovered and button.action == "toggle_music":
+                    self.music_on = not self.music_on
+                    button.text = "Музыка: Вкл" if self.music_on else "Музыка: Выкл"
+                    pygame.mixer.music.set_volume(0.5 if self.music_on else 0)
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             buttons = self.difficulty_buttons if self.show_difficulty else self.buttons
@@ -111,7 +122,6 @@ class Menu:
                             "professional": "профи"
                         }[button.action]
                         self.show_difficulty = False
-                        print(f"Выбрана сложность: {self.selected_difficulty}")
                     return button.action
         return None
 
@@ -136,7 +146,7 @@ class Menu:
             diff_text = diff_font.render(
                 f"Сложность: {self.selected_difficulty}", True, TEXT_COLOR)
             self.screen.blit(diff_text, (SCREEN_WIDTH//2 -
-                             diff_text.get_width()//2, 380))
+                             diff_text.get_width()//2, 500))
 
         # Рисуем активные кнопки
         buttons = self.difficulty_buttons if self.show_difficulty else self.buttons

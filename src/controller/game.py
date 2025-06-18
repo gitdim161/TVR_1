@@ -1,9 +1,9 @@
 import pygame
-from castle import Castle
-from constants import GRID_SIZE_X, GRID_SIZE_Y, TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, SCREEN_WIDTH, DIFFICULTY_SETTINGS, SCREEN_HEIGHT, BRIDGE_HEIGHT, BRIDGE_WIDTH, BRIDGE_X, BRIDGE_Y
-from grid_manager import GridManager
-from monster_manager import MonsterManager
-from game_state import GameState
+from src.model.castle import Castle
+from src.utils.constants import GRID_SIZE_X, GRID_SIZE_Y, TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, SCREEN_WIDTH, DIFFICULTY_SETTINGS, SCREEN_HEIGHT, BRIDGE_HEIGHT, BRIDGE_WIDTH, BRIDGE_X, BRIDGE_Y
+from src.controller.grid_manager import GridManager
+from src.controller.monster_manager import MonsterManager
+from src.controller.game_state import GameState
 
 
 class Game:
@@ -21,10 +21,10 @@ class Game:
 
         # Загрузка изображений
         self.bridge_image = pygame.image.load(
-            r'images\thumbnail.png').convert_alpha()
+            r'assets\images\bridge.png').convert_alpha()
         self.bridge_image = pygame.transform.scale(
             self.bridge_image, (BRIDGE_WIDTH, BRIDGE_HEIGHT))
-        self.background = pygame.image.load(r'images\game.png').convert()
+        self.background = pygame.image.load(r'assets\images\game.png').convert()
         self.background = pygame.transform.scale(
             self.background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -37,16 +37,20 @@ class Game:
         surface.blit(self.background, (0, 0))
         surface.blit(self.bridge_image, (BRIDGE_X, BRIDGE_Y))
 
+        # Рисуем игровое поле
         self.grid_manager.draw_grid(surface)
         self.grid_manager.draw_selected_tile(surface, self.state.selected_tile)
 
+        # Рисуем монстров и крепость
         for monster in self.monster_manager.monsters:
             monster.draw(surface)
-
         self.castle.draw(surface)
+
+        # Игровая информация (HP крепости, кнопка меню)
         self.state.draw_game_info(surface, self.castle)
-        self.state.draw_game_over(surface)
+
         self.state.draw_win(surface)
+        self.state.draw_game_over(surface)
 
     def handle_click(self, pos):
         """Обрабатывает клик мыши по игровому полю.

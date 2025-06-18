@@ -1,7 +1,7 @@
 import pygame
 import random
-from tile import Tile
-from constants import GRID_SIZE_X, GRID_SIZE_Y, COLORS, TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, WHITE
+from src.model.tile import Tile
+from src.utils.constants import GRID_SIZE_X, GRID_SIZE_Y, COLORS, TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, WHITE
 
 
 class GridManager:
@@ -82,10 +82,11 @@ class GridManager:
             list: Список списков координат совпадающих тайлов.
         """
         matches = []
-        # Горизонтальные совпадения
+        # Проверяем горизонтальные совпадения
         for y in range(GRID_SIZE_Y):
             x = 0
             while x < GRID_SIZE_X - 2:
+                # Пропускаем пустые ячейки
                 if self.grid[x][y] is None:
                     x += 1
                     continue
@@ -93,6 +94,7 @@ class GridManager:
                 color = self.grid[x][y].color
                 match_length = 1
 
+                # Проверяем следующие тайлы
                 while (x + match_length < GRID_SIZE_X and
                        self.grid[x + match_length][y] is not None and
                        self.grid[x + match_length][y].color == color):
@@ -100,14 +102,15 @@ class GridManager:
 
                 if match_length >= 3:
                     matches.append([(x + i, y) for i in range(match_length)])
-                    x += match_length
+                    x += match_length  # Пропускаем проверенные тайлы
                 else:
                     x += 1
 
-        # Вертикальные совпадения
+        # Проверяем вертикальные совпадения
         for x in range(GRID_SIZE_X):
             y = 0
             while y < GRID_SIZE_Y - 2:
+                # Пропускаем пустые ячейки
                 if self.grid[x][y] is None:
                     y += 1
                     continue
@@ -115,6 +118,7 @@ class GridManager:
                 color = self.grid[x][y].color
                 match_length = 1
 
+                # Проверяем следующие тайлы
                 while (y + match_length < GRID_SIZE_Y and
                        self.grid[x][y + match_length] is not None and
                        self.grid[x][y + match_length].color == color):
@@ -122,7 +126,7 @@ class GridManager:
 
                 if match_length >= 3:
                     matches.append([(x, y + i) for i in range(match_length)])
-                    y += match_length
+                    y += match_length  # Пропускаем проверенные тайлы
                 else:
                     y += 1
 

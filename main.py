@@ -1,17 +1,21 @@
 import pygame
 import sys
-from game import Game
-from menu import Menu
-from constants import SCREEN_WIDTH, SCREEN_HEIGHT, WHITE, FPS
+from src.controller.game import Game
+from src.view.menu import Menu
+from src.utils.constants import SCREEN_WIDTH, SCREEN_HEIGHT, WHITE, FPS
 
 
 def main():
     """Главная функция, запускающая игру."""
     pygame.init()
+    pygame.mixer.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Три в ряд + Tower Defense")
     clock = pygame.time.Clock()
 
+    pygame.mixer.music.load(r'assets\sounds\menu.mp3')
+    pygame.mixer.music.set_volume(0.5)  # Громкость от 0 до 1
+    pygame.mixer.music.play(-1)  # -1 означает зацикливание
     menu = Menu(screen)
     game = None
 
@@ -22,6 +26,7 @@ def main():
 
             for event in events:
                 if event.type == pygame.QUIT:
+                    pygame.mixer.music.stop()
                     running = False
 
             screen.fill(WHITE)

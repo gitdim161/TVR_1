@@ -1,5 +1,5 @@
 import pygame
-from constants import TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y
+from src.utils.constants import TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y
 
 
 class Tile:
@@ -27,14 +27,14 @@ class Tile:
     def load_image(self):
         """Загружает изображение в зависимости от цвета тайла"""
         color_to_image = {
-            (255, 0, 0): r'images\fire.png',     # RED
-            (0, 255, 0): r'images\air.png',   # GREEN
-            (0, 0, 255): r'images\water.png',    # BLUE
-            (255, 255, 0): r'images\light.png',  # YELLOW
-            (255, 0, 255): r'images\dark.png',  # PURPLE
-            (0, 255, 255): r'images\earth.png'   # CYAN
+            (255, 0, 0): r'assets\images\fire.png',     # RED
+            (0, 255, 0): r'assets\images\air.png',   # GREEN
+            (0, 0, 255): r'assets\images\water.png',    # BLUE
+            (255, 255, 0): r'assets\images\light.png',  # YELLOW
+            (255, 0, 255): r'assets\images\dark.png',  # PURPLE
+            (0, 255, 255): r'assets\images\earth.png'   # CYAN
         }
-        image_file = color_to_image.get(self.color, r'images\default.png')
+        image_file = color_to_image.get(self.color, r'assets\images\default.png')
         self.image = pygame.image.load(image_file).convert_alpha()
         self.image = pygame.transform.scale(self.image, (TILE_SIZE, TILE_SIZE))
 

@@ -1,5 +1,5 @@
-from monster import Monster
-from constants import DIFFICULTY_SETTINGS
+from src.model.monster import Monster
+from src.utils.constants import DIFFICULTY_SETTINGS
 
 
 class MonsterManager:

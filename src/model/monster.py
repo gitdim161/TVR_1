@@ -1,5 +1,5 @@
 import pygame
-from constants import BLACK, GREEN, MONSTER_PATH_Y, BRIDGE_X, BRIDGE_WIDTH
+from src.utils.constants import BLACK, GREEN, MONSTER_PATH_Y, BRIDGE_X, BRIDGE_WIDTH
 
 
 class Monster:
@@ -21,7 +21,7 @@ class Monster:
         self.height = 120
         self.progress = 0
         self.image = None
-        self.image = pygame.image.load(r'images\monster.png').convert_alpha()
+        self.image = pygame.image.load(r'assets\images\monster.png').convert_alpha()
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
     def update(self):

@@ -1,5 +1,5 @@
 import pygame
-from constants import BLACK, RED, GREEN, SCREEN_WIDTH, SCREEN_HEIGHT, BUTTON_COLOR, TEXT_COLOR
+from src.utils.constants import BLACK, RED, GREEN, SCREEN_WIDTH, SCREEN_HEIGHT, BUTTON_COLOR, TEXT_COLOR
 
 
 class GameState:
@@ -37,9 +37,6 @@ class GameState:
             surface (pygame.Surface): Поверхность для отрисовки.
             castle (Castle): Объект крепости.
         """
-        castle_hp_text = self.font.render(
-            f"Крепость: {castle.hp}/{castle.max_hp}", True, BLACK)
-        surface.blit(castle_hp_text, (SCREEN_WIDTH - 200, 10))
 
         pygame.draw.rect(surface, BUTTON_COLOR, self.menu_button)
         menu_text = self.font.render("Меню", True, TEXT_COLOR)

@@ -40,7 +40,7 @@ MONSTER_PATH_Y = BRIDGE_Y + BRIDGE_HEIGHT // 2 - 20
 DIFFICULTY_SETTINGS = {
     "новичок": {
         "monster_hp": 20,
-        "monster_damage": 5,
+        "monster_damage": 10,
         "monster_speed": 0.4,
         "spawn_interval": 4000,
         "castle_hp": 100,
@@ -49,7 +49,7 @@ DIFFICULTY_SETTINGS = {
     },
     "любитель": {
         "monster_hp": 30,
-        "monster_damage": 10,
+        "monster_damage": 20,
         "monster_speed": 0.6,
         "spawn_interval": 4000,
         "castle_hp": 100,
@@ -58,7 +58,7 @@ DIFFICULTY_SETTINGS = {
     },
     "профи": {
         "monster_hp": 45,
-        "monster_damage": 15,
+        "monster_damage": 20,
         "monster_speed": 0.8,
         "spawn_interval": 4000,
         "castle_hp": 100,
