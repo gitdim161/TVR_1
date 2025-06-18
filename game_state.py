@@ -4,6 +4,11 @@ from constants import BLACK, RED, GREEN, SCREEN_WIDTH, SCREEN_HEIGHT, BUTTON_COL
 
 class GameState:
     def __init__(self, difficulty="любитель"):
+        """Инициализирует состояние игры.
+
+        Args:
+            difficulty (str): Уровень сложности ('новичок', 'любитель', 'профи').
+        """
         self.difficulty = difficulty
         self.selected_tile = None
         self.game_over = False
@@ -14,6 +19,11 @@ class GameState:
         self.menu_button = pygame.Rect(50, 10, 100, 40)
 
     def update_time(self):
+        """Обновляет игровое время.
+
+        Returns:
+            int: Время, прошедшее с последнего обновления (в миллисекундах).
+        """
         current_time = pygame.time.get_ticks()
         delta_time = current_time - self.last_time
         self.last_time = current_time
@@ -21,6 +31,12 @@ class GameState:
         return delta_time
 
     def draw_game_info(self, surface, castle):
+        """Отрисовывает игровую информацию (здоровье крепости, кнопку меню).
+
+        Args:
+            surface (pygame.Surface): Поверхность для отрисовки.
+            castle (Castle): Объект крепости.
+        """
         castle_hp_text = self.font.render(
             f"Крепость: {castle.hp}/{castle.max_hp}", True, BLACK)
         surface.blit(castle_hp_text, (SCREEN_WIDTH - 200, 10))
@@ -30,11 +46,21 @@ class GameState:
         surface.blit(menu_text, (self.menu_button.x + 20, self.menu_button.y + 10))
 
     def draw_game_over(self, surface):
+        """Отрисовывает сообщение о конце игры.
+
+        Args:
+            surface (pygame.Surface): Поверхность для отрисовки.
+        """
         if self.game_over:
             game_over_text = self.font.render("ИГРА ОКОНЧЕНА!", True, RED)
             surface.blit(game_over_text, (SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2))
 
     def draw_win(self, surface):
+        """Отрисовывает сообщение о победе.
+
+        Args:
+            surface (pygame.Surface): Поверхность для отрисовки.
+        """
         if self.win:
             win_text = self.font.render('ПОБЕДА!', True, GREEN)
             restart_text = self.font.render('Нажмите R для рестарта', True, BLACK)

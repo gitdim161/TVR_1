@@ -4,6 +4,13 @@ from constants import TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y
 
 class Tile:
     def __init__(self, grid_x, grid_y, color):
+        """Инициализирует тайл с заданными координатами и цветом.
+
+        Args:
+            grid_x (int): Координата X в сетке.
+            grid_y (int): Координата Y в сетке.
+            color (tuple): Цвет тайла в формате RGB.
+        """
         self.grid_x = grid_x
         self.grid_y = grid_y
         self.color = color
@@ -12,7 +19,7 @@ class Tile:
         self.rect = pygame.Rect(self.pixel_x, self.pixel_y, TILE_SIZE, TILE_SIZE)
         self.is_falling = False
         self.fall_speed = 0
-        self.special_effect = None  # 'row_clear', 'column_clear', 'color_clear'
+        self.special_effect = None
         self.effect_timer = 0
         self.image = None
         self.load_image()
@@ -44,7 +51,12 @@ class Tile:
                 self.rect.y = self.pixel_y
 
     def update_position(self, new_grid_x, new_grid_y):
-        """Обновляет координаты в сетке и пересчитывает пиксельные коор-ты"""
+        """Обновляет координаты в сетке и пересчитывает пиксельные коор-ты
+
+        Args:
+            new_grid_x (int): Новая координата X в сетке.
+            new_grid_y (int): Новая координата Y в сетке.
+        """
         self.grid_x = new_grid_x
         self.grid_y = new_grid_y
         self.pixel_x = GRID_OFFSET_X + new_grid_x * TILE_SIZE
@@ -53,6 +65,11 @@ class Tile:
         self.rect.y = self.pixel_y
 
     def draw(self, surface):
+        """Отрисовывает тайл на указанной поверхности.
+
+        Args:
+            surface (pygame.Surface): Поверхность для отрисовки.
+        """
         surface.blit(self.image, (self.pixel_x, self.pixel_y))
         # Если есть спецэффект, рисуем поверх
         if self.special_effect:

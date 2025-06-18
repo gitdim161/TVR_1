@@ -4,6 +4,11 @@ from constants import DIFFICULTY_SETTINGS
 
 class MonsterManager:
     def __init__(self, difficulty):
+        """Инициализирует менеджер монстров с настройками сложности.
+
+        Args:
+            difficulty (str): Уровень сложности ('новичок', 'любитель', 'профи').
+        """
         settings = DIFFICULTY_SETTINGS[difficulty]
         self.monsters = []
         self.initial_spawn_interval = settings["spawn_interval"]
@@ -19,8 +24,13 @@ class MonsterManager:
         }
 
     def spawn_monster(self):
+        """Создает нового монстра, если это возможно.
+
+        Returns:
+            bool: True, если монстр был создан, иначе False.
+        """
         if (self.monsters_spawned < self.total_monsters and
-            len(self.monsters) < 5):
+                len(self.monsters) < 5):
             hp = self.monster_settings["hp"]
             damage = self.monster_settings["damage"]
             speed = self.monster_settings["speed"]
@@ -30,8 +40,17 @@ class MonsterManager:
         return False
 
     def update(self, delta_time, game_time, castle):
+        """Обновляет состояние менеджера монстров.
+
+        Args:
+            delta_time (int): Время, прошедшее с последнего обновления.
+            game_time (int): Общее время игры.
+            castle (Castle): Объект крепости.
+        Returns:
+            bool: True, если крепость уничтожена, иначе False.
+        """
         self.spawn_interval = max(500, self.initial_spawn_interval -
-                               (game_time // 1000) * self.spawn_acceleration)
+                                  (game_time // 1000) * self.spawn_acceleration)
 
         self.spawn_timer += delta_time
         if self.spawn_timer >= self.spawn_interval:
@@ -48,6 +67,13 @@ class MonsterManager:
         return False  # Game continues
 
     def apply_damage(self, damage):
+        """Наносит урон первому монстру в списке.
+
+        Args:
+            damage (int): Количество наносимого урона.
+        Returns:
+            bool: True, если все монстры побеждены, иначе False.
+        """
         if not self.monsters:
             return False
 

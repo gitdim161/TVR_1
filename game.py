@@ -8,6 +8,11 @@ from game_state import GameState
 
 class Game:
     def __init__(self, difficulty="любитель"):
+        """Инициализирует игру с указанным уровнем сложности.
+
+        Args:
+            difficulty (str): Уровень сложности ('новичок', 'любитель', 'профи').
+        """
         settings = DIFFICULTY_SETTINGS[difficulty]
         self.state = GameState(difficulty)
         self.grid_manager = GridManager()
@@ -16,7 +21,7 @@ class Game:
 
         # Загрузка изображений
         self.bridge_image = pygame.image.load(
-            r'images\bridge.png').convert_alpha()
+            r'images\thumbnail.png').convert_alpha()
         self.bridge_image = pygame.transform.scale(
             self.bridge_image, (BRIDGE_WIDTH, BRIDGE_HEIGHT))
         self.background = pygame.image.load(r'images\game.png').convert()
@@ -24,6 +29,11 @@ class Game:
             self.background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
     def draw(self, surface):
+        """Отрисовывает все компоненты игры на поверхности.
+
+        Args:
+            surface (pygame.Surface): Поверхность для отрисовки.
+        """
         surface.blit(self.background, (0, 0))
         surface.blit(self.bridge_image, (BRIDGE_X, BRIDGE_Y))
 
@@ -39,6 +49,14 @@ class Game:
         self.state.draw_win(surface)
 
     def handle_click(self, pos):
+        """Обрабатывает клик мыши по игровому полю.
+
+        Args:
+            pos (tuple): Координаты клика (x, y).
+
+        Returns:
+            str or None: "menu" если клик по кнопке меню, иначе None.
+        """
         if self.state.menu_button.collidepoint(pos):
             return "menu"
         if self.state.game_over or self.state.win:
@@ -72,6 +90,7 @@ class Game:
             self.state.selected_tile = None
 
     def update(self):
+        """Обновляет состояние игры."""
         if self.state.game_over or self.state.win:
             return
 

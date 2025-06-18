@@ -6,10 +6,12 @@ from constants import GRID_SIZE_X, GRID_SIZE_Y, COLORS, TILE_SIZE, GRID_OFFSET_X
 
 class GridManager:
     def __init__(self):
+        """Инициализирует управление игровой сеткой."""
         self.grid = []
         self.initialize_grid()
 
     def initialize_grid(self):
+        """Создает начальную сетку с тайлами, исключая совпадения."""
         self.grid = []
         for x in range(GRID_SIZE_X):
             column = []
@@ -17,12 +19,16 @@ class GridManager:
                 color = random.choice(COLORS)
                 column.append(Tile(x, y, color))
             self.grid.append(column)
-
         while self.find_matches():
             self.remove_matches()
             self.fill_empty_spaces()
 
     def draw_grid(self, surface):
+        """Отрисовывает все тайлы сетки.
+
+        Args:
+            surface (pygame.Surface): Поверхность для отрисовки.
+        """
         for x in range(GRID_SIZE_X):
             for y in range(GRID_SIZE_Y):
                 tile = self.grid[x][y]
@@ -30,6 +36,12 @@ class GridManager:
                     tile.draw(surface)
 
     def draw_selected_tile(self, surface, selected_tile):
+        """Отрисовывает выделение выбранного тайла.
+
+        Args:
+            surface (pygame.Surface): Поверхность для отрисовки.
+            selected_tile (tuple): Координаты выбранного тайла (x, y).
+        """
         if selected_tile:
             x, y = selected_tile
             rect = pygame.Rect(
@@ -40,6 +52,14 @@ class GridManager:
             pygame.draw.rect(surface, WHITE, rect, 3)
 
     def swap_tiles(self, pos1, pos2):
+        """Меняет местами два тайла.
+
+        Args:
+            pos1 (tuple): Координаты первого тайла (x, y).
+            pos2 (tuple): Координаты второго тайла (x, y).
+        Returns:
+            bool: True если обмен произошел, иначе False.
+        """
         x1, y1 = pos1
         x2, y2 = pos2
 
@@ -56,6 +76,11 @@ class GridManager:
         return True
 
     def find_matches(self):
+        """Находит все совпадения 3+ тайлов в сетке.
+
+        Returns:
+            list: Список списков координат совпадающих тайлов.
+        """
         matches = []
         # Горизонтальные совпадения
         for y in range(GRID_SIZE_Y):
@@ -104,6 +129,11 @@ class GridManager:
         return matches
 
     def remove_matches(self):
+        """Удаляет совпадающие тайлы и рассчитывает урон.
+
+        Returns:
+            int: Общий урон, нанесенный монстрам.
+        """
         matches = self.find_matches()
         damage = 0
         positions_to_clear = set()
@@ -145,6 +175,7 @@ class GridManager:
         return damage
 
     def fill_empty_spaces(self):
+        """Заполняет пустые места в сетке новыми тайлами."""
         for x in range(GRID_SIZE_X):
             empty_spots = []
             for y in range(GRID_SIZE_Y - 1, -1, -1):
@@ -169,6 +200,7 @@ class GridManager:
                 self.grid[x][empty_y] = new_tile
 
     def update_tiles(self):
+        """Обновляет состояние всех тайлов (анимация падения)."""
         for x in range(GRID_SIZE_X):
             for y in range(GRID_SIZE_Y):
                 tile = self.grid[x][y]

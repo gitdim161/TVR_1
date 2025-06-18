@@ -4,6 +4,16 @@ from constants import BUTTON_COLOR, BUTTON_HOVER_COLOR, BLACK, TEXT_COLOR, SCREE
 
 class Button:
     def __init__(self, x, y, width, height, text, action):
+        """Инициализирует кнопку меню.
+
+        Args:
+            x (int): Координата X.
+            y (int): Координата Y.
+            width (int): Ширина кнопки.
+            height (int): Высота кнопки.
+            text (str): Текст кнопки.
+            action (str): Действие кнопки.
+        """
         self.rect = pygame.Rect(x, y, width, height)
         self.text = text
         self.action = action
@@ -11,6 +21,11 @@ class Button:
         self.font = pygame.font.SysFont('Arial', 30)
 
     def draw(self, surface):
+        """Отрисовывает кнопку.
+
+        Args:
+            surface (pygame.Surface): Поверхность для отрисовки.
+        """
         color = BUTTON_HOVER_COLOR if self.is_hovered else BUTTON_COLOR
         pygame.draw.rect(surface, color, self.rect, border_radius=10)
         pygame.draw.rect(surface, BLACK, self.rect, 2, border_radius=10)
@@ -20,11 +35,23 @@ class Button:
         surface.blit(text_surf, text_rect)
 
     def check_click(self, pos):
+        """Проверяет, был ли клик по кнопке.
+
+        Args:
+            pos (tuple): Координаты клика (x, y).
+        Returns:
+            bool: True если клик был по кнопке, иначе False.
+        """
         return self.rect.collidepoint(pos)
 
 
 class Menu:
     def __init__(self, screen):
+        """Инициализирует меню.
+
+        Args:
+            screen (pygame.Surface): Экран для отрисовки.
+        """
         self.screen = screen
         self.buttons = []
         self.difficulty_buttons = []
@@ -36,16 +63,15 @@ class Menu:
         self.create_buttons()
 
     def create_buttons(self):
+        """Создает кнопки меню."""
         width, height = 200, 50
         center_x = SCREEN_WIDTH // 2 - width // 2
-
         # Основные кнопки
         self.buttons = [
             Button(center_x, 250, width, height, "Начать игру", "start"),
             Button(center_x, 320, width, height, "Сложность", "difficulty"),
             Button(center_x, 450, width, height, "Выход", "exit")
         ]
-
         # Кнопки выбора сложности
         self.difficulty_buttons = [
             Button(center_x, 150, width, height, "Новичок", "novice"),
@@ -55,6 +81,14 @@ class Menu:
         ]
 
     def handle_event(self, event):
+        """Обрабатывает события меню.
+
+        Args:
+            event (pygame.Event): Событие для обработки.
+
+        Returns:
+            str or None: Действие, связанное с нажатой кнопкой, или None.
+        """
         if event.type == pygame.MOUSEMOTION:
             buttons = self.difficulty_buttons if self.show_difficulty else self.buttons
             for button in buttons:
