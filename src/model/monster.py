@@ -1,5 +1,7 @@
 import pygame
-from src.utils.constants import BLACK, GREEN, MONSTER_PATH_Y, BRIDGE_X, BRIDGE_WIDTH
+from src.utils.constants import (
+    BLACK, GREEN, MONSTER_PATH_Y, BRIDGE_X, BRIDGE_WIDTH
+)
 
 
 class Monster:

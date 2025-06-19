@@ -1,7 +1,11 @@
 import pygame
 from src.model.castle import Castle
 from src.view.game_renderer import GameRenderer
-from src.utils.constants import GRID_SIZE_X, GRID_SIZE_Y, TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, SCREEN_WIDTH, DIFFICULTY_SETTINGS, SCREEN_HEIGHT, BRIDGE_HEIGHT, BRIDGE_WIDTH, BRIDGE_X, BRIDGE_Y
+from src.utils.constants import (
+    GRID_SIZE_X, GRID_SIZE_Y, TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y,
+    SCREEN_WIDTH, DIFFICULTY_SETTINGS, SCREEN_HEIGHT, BRIDGE_HEIGHT,
+    BRIDGE_WIDTH, BRIDGE_X, BRIDGE_Y
+)
 from src.logic.grid_manager import GridManager
 from src.logic.monster_manager import MonsterManager
 from src.logic.game_state import GameState

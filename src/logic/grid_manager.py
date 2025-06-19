@@ -1,7 +1,10 @@
 import pygame
 import random
 from src.model.tile import Tile
-from src.utils.constants import GRID_SIZE_X, GRID_SIZE_Y, COLORS, TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, WHITE
+from src.utils.constants import (
+    GRID_SIZE_X, GRID_SIZE_Y, COLORS, TILE_SIZE,
+    GRID_OFFSET_X, GRID_OFFSET_Y, WHITE
+)
 
 
 class GridManager:
