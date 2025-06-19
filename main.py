@@ -39,18 +39,22 @@ def main():
                 for event in events:
                     if event.type == pygame.MOUSEBUTTONDOWN:
                         result = game.handle_click(event.pos)
-                        if result == "menu":
+                        if result == "restart":
+                            game = Game(game.difficulty)
+                        elif result == "exit":
                             game = None
                     elif event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_r and game.game_over or game.win:
+                        if event.key == pygame.K_r and game.state.game_over or game.state.win:
                             game = Game(menu.selected_difficulty)
             else:
                 menu.draw()
                 action = menu.handle_event(event)
-                if action == "start":
-                    game = Game(menu.selected_difficulty)
-                elif action == "exit":
-                    running = False
+                for event in events:
+                    action = menu.handle_event(event)
+                    if action == "start":
+                        game = Game(menu.selected_difficulty)
+                    elif action == "exit":
+                        running = False
 
             pygame.display.flip()
             clock.tick(FPS)

@@ -71,6 +71,8 @@ class Menu:
         self.buttons = [
             Button(center_x, 250, width, height, "Начать игру", "start"),
             Button(center_x, 320, width, height, "Сложность", "difficulty"),
+            Button(center_x, 390, width, height,
+                   "Музыка: Вкл" if self.music_on else "Музыка: Выкл", "toggle_music"),
             Button(center_x, 450, width, height, "Выход", "exit")
         ]
         # Кнопки выбора сложности
@@ -80,9 +82,6 @@ class Menu:
             Button(center_x, 290, width, height, "Профи", "professional"),
             Button(center_x, 360, width, height, "Назад", "back")
         ]
-        self.buttons.append(Button(center_x, 390, width, height, 
-                            "Музыка: Вкл" if self.music_on else "Музыка: Выкл",
-                             "toggle_music"))
 
     def handle_event(self, event):
         """Обрабатывает события меню.
@@ -99,16 +98,14 @@ class Menu:
                 button.is_hovered = button.rect.collidepoint(event.pos)
 
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            for button in self.buttons:
-                if button.is_hovered and button.action == "toggle_music":
-                    self.music_on = not self.music_on
-                    button.text = "Музыка: Вкл" if self.music_on else "Музыка: Выкл"
-                    pygame.mixer.music.set_volume(0.5 if self.music_on else 0)
-
-        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             buttons = self.difficulty_buttons if self.show_difficulty else self.buttons
             for button in buttons:
                 if button.is_hovered:
+                    if button.action == "toggle_music":
+                        self.music_on = not self.music_on
+                        button.text = "Музыка: Вкл" if self.music_on else "Музыка: Выкл"
+                        pygame.mixer.music.set_volume(0.5 if self.music_on else 0)
+                        return None
                     if button.action == "difficulty":
                         self.show_difficulty = True
                         return None

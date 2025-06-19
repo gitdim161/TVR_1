@@ -13,6 +13,7 @@ class Game:
         Args:
             difficulty (str): Уровень сложности ('новичок', 'любитель', 'профи').
         """
+        self.difficulty = difficulty
         settings = DIFFICULTY_SETTINGS[difficulty]
         self.state = GameState(difficulty)
         self.grid_manager = GridManager()
@@ -51,6 +52,7 @@ class Game:
 
         self.state.draw_win(surface)
         self.state.draw_game_over(surface)
+        self.state.draw_pause(surface)
 
     def handle_click(self, pos):
         """Обрабатывает клик мыши по игровому полю.
@@ -62,7 +64,19 @@ class Game:
             str or None: "menu" если клик по кнопке меню, иначе None.
         """
         if self.state.menu_button.collidepoint(pos):
+            self.toggle_pause()
             return "menu"
+
+        if self.state.paused:
+            action = self.state.handle_pause_click(pos)
+            if action == "continue":
+                self.toggle_pause()
+            elif action == "restart":
+                return "restart"
+            elif action == "exit":
+                return "exit"
+            return None
+
         if self.state.game_over or self.state.win:
             return None
 
@@ -95,7 +109,7 @@ class Game:
 
     def update(self):
         """Обновляет состояние игры."""
-        if self.state.game_over or self.state.win:
+        if self.state.game_over or self.state.win or self.state.paused:
             return
 
         delta_time = self.state.update_time()
@@ -103,3 +117,7 @@ class Game:
 
         if self.monster_manager.update(delta_time, self.state.game_time, self.castle):
             self.state.game_over = True
+
+    def toggle_pause(self):
+        """Переключает состояние паузы"""
+        self.state.paused = not self.state.paused
