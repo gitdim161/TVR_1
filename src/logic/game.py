@@ -1,9 +1,10 @@
 import pygame
 from src.model.castle import Castle
+from src.view.game_renderer import GameRenderer
 from src.utils.constants import GRID_SIZE_X, GRID_SIZE_Y, TILE_SIZE, GRID_OFFSET_X, GRID_OFFSET_Y, SCREEN_WIDTH, DIFFICULTY_SETTINGS, SCREEN_HEIGHT, BRIDGE_HEIGHT, BRIDGE_WIDTH, BRIDGE_X, BRIDGE_Y
-from src.controller.grid_manager import GridManager
-from src.controller.monster_manager import MonsterManager
-from src.controller.game_state import GameState
+from src.logic.grid_manager import GridManager
+from src.logic.monster_manager import MonsterManager
+from src.logic.game_state import GameState
 
 
 class Game:
@@ -29,6 +30,8 @@ class Game:
         self.background = pygame.transform.scale(
             self.background, (SCREEN_WIDTH, SCREEN_HEIGHT))
 
+        self.renderer = GameRenderer(self.state, self.castle)
+
     def draw(self, surface):
         """Отрисовывает все компоненты игры на поверхности.
 
@@ -48,11 +51,10 @@ class Game:
         self.castle.draw(surface)
 
         # Игровая информация (HP крепости, кнопка меню)
-        self.state.draw_game_info(surface, self.castle)
-
-        self.state.draw_win(surface)
-        self.state.draw_game_over(surface)
-        self.state.draw_pause(surface)
+        self.renderer.draw_game_info(surface)
+        self.renderer.draw_pause(surface)
+        self.renderer.draw_game_over(surface)
+        self.renderer.draw_win(surface)
 
     def handle_click(self, pos):
         """Обрабатывает клик мыши по игровому полю.
